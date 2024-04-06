@@ -1,0 +1,6 @@
+/Users/dynomite/Desktop/REU/Goal-Recognition/downward/builds/release/CMakeFiles/translate.dir
+/Users/dynomite/Desktop/REU/Goal-Recognition/downward/builds/release/CMakeFiles/edit_cache.dir
+/Users/dynomite/Desktop/REU/Goal-Recognition/downward/builds/release/CMakeFiles/rebuild_cache.dir
+/Users/dynomite/Desktop/REU/Goal-Recognition/downward/builds/release/search/CMakeFiles/downward.dir
+/Users/dynomite/Desktop/REU/Goal-Recognition/downward/builds/release/search/CMakeFiles/edit_cache.dir
+/Users/dynomite/Desktop/REU/Goal-Recognition/downward/builds/release/search/CMakeFiles/rebuild_cache.dir
