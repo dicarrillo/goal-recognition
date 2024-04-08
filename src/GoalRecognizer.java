@@ -13,7 +13,7 @@ public class GoalRecognizer {
      * @param disFromStart distance from start to goal
      * @return probability value before normalizing constant is applied
      */
-    public static double initialProb(int disFromAgent, int disFromStart) {
+    private static double initialProb(int disFromAgent, int disFromStart) {
         double costDifference;
         double numerator;
         double denominator;
@@ -34,7 +34,7 @@ public class GoalRecognizer {
      * @param initialProbs distribution of probabilities
      * @return probability distribution after being normalized
      */
-    public static double[] normalizeDist(double[] initialProbs) {
+    private static double[] normalizeDist(double[] initialProbs) {
         double normalizingConst;
         double[] normalizedDist;
 
@@ -62,7 +62,7 @@ public class GoalRecognizer {
      * @param problemFilePath path to PDDL problem file
      * @return optimal cost (number of steps) to achieve goal state
      */
-    public static int findCost(String domainFilePath, String problemFilePath)
+    private static int findCost(String domainFilePath, String problemFilePath)
     {
         int cost = -1;   // Value to return
 
@@ -70,7 +70,7 @@ public class GoalRecognizer {
             // Specify the directory
             File directory = new File("/Users/dynomite/Desktop/REU/Goal-Recognition/downward");
 
-            // Add elements to command
+            // Add elements to command (using old Lama version of Downward planner)
             ArrayList<String> command = new ArrayList<>();
             command.add("./fast-downward.py");
             command.add("--alias");
@@ -113,6 +113,55 @@ public class GoalRecognizer {
         }
 
         return cost;
+    }
+
+    /**
+     * Creates a probability distribution (before normalization) of goals
+     *
+     * @param domain path to domain file
+     * @param currentPosProblem path to problem file, where the current agent position is the goal
+     * @param goalProblems array of problem file paths, for each of the goals
+     * @return array of relative probabilities for corresponding goals, before normalization
+     */
+    private static double[] initialProbDist(String domain, String currentPosProblem, String[] goalProblems)
+    {
+        int currentPosCost;
+        double[] relativeProbs;
+
+        currentPosCost = findCost(domain, currentPosProblem);   // Find cost of reaching current position (to be stored)
+        relativeProbs = new double[goalProblems.length];
+
+        // Populate relativeProbs with correct probabilities
+        int costToGoal;
+        double relativeProb;
+        for (int i = 0; i < goalProblems.length; ++i)
+        {
+            costToGoal = findCost(domain, goalProblems[i]);
+            relativeProb = initialProb(currentPosCost, costToGoal);
+            relativeProbs[i] = relativeProb;
+        }
+
+        return relativeProbs;
+    }
+
+    /**
+     * Prints the relative probability distribution for an array of potential goals
+     *
+     * @param domain path to domain file
+     * @param currentPosProblem path to problem file, where the current agent position is the goal
+     * @param goalProblems array of problem file paths, for each of the goals
+     */
+    public static void goalProbabilites(String domain, String currentPosProblem, String[] goalProblems)
+    {
+        double[] probs;
+
+        probs = initialProbDist(domain, currentPosProblem, goalProblems);
+        probs = normalizeDist(probs);
+
+        for (double probability : probs)
+        {
+            System.out.println(probability);
+        }
     }
 
     public static void main(String[] args)
