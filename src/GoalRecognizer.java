@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 
 public class GoalRecognizer {
@@ -63,50 +64,55 @@ public class GoalRecognizer {
      */
     public static int findCost(String domainFilePath, String problemFilePath)
     {
-        String plannerScript;
-
-        plannerScript = "./fast-downward.py " + domainFilePath + " " + problemFilePath + " --search \"astar(lmcut())\"";
+        int cost = -1;   // Value to return
 
         try {
-            File workingDir;
-            BufferedReader reader;
-            ProcessBuilder processBuilder;
-            Process process;
-            String line;
-            int exitCode;
+            // Specify the directory
+            File directory = new File("/Users/dynomite/Desktop/REU/Goal-Recognition/downward");
 
-            // Create process builder
-            processBuilder = new ProcessBuilder(plannerScript.split("\\s+"));
+            // Add elements to command
+            ArrayList<String> command = new ArrayList<>();
+            command.add("./fast-downward.py");
+            command.add("--alias");
+            command.add("seq-sat-lama-2011");
+            command.add(domainFilePath);
+            command.add(problemFilePath);
 
-            // Specify the working directory
-            workingDir = new File("/Users/dynomite/Desktop/REU/Goal-Recognition/downward");
-
-            // Set the working directory
-            processBuilder.directory(workingDir);
-
-            // Redirect error stream to output stream
-            processBuilder.redirectErrorStream(true);
+            // Create a ProcessBuilder with the command and directory
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.directory(directory);
 
             // Start the process
-            process = processBuilder.start();
+            Process process = processBuilder.start();
 
-            // Read output
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            // Read the output of the command
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                String targetString;
+                int index;
+                char charCost;
+
+                targetString = "Plan cost :";        // Sequence to search for
+                index = line.indexOf("Plan cost: "); // Find target in line (if it exists)
+
+                if (index != -1)
+                {   // Target string found, get value of next character (which is the cost)
+                    charCost = line.charAt(index + targetString.length());
+                    cost = charCost - '0';
+                }
+
             }
 
             // Wait for the process to finish
-            exitCode = process.waitFor();
-            if (exitCode != 0) {
-                System.out.println("Exited with error code " + exitCode);
-            }
+            int exitCode = process.waitFor();
+            System.out.println("Command executed with exit code: " + exitCode);
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
-        return 0;
+        return cost;
     }
 
     public static void main(String[] args)
@@ -117,6 +123,6 @@ public class GoalRecognizer {
         domainFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/domain.pddl";
         problemFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/prob1.pddl";
 
-        GoalRecognizer.findCost(domainFile, problemFile);
+        System.out.println(GoalRecognizer.findCost(domainFile, problemFile));
     }
 }
