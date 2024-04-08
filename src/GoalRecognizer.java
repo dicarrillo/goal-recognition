@@ -93,6 +93,8 @@ public class GoalRecognizer {
                 int index;
                 char charCost;
 
+                System.out.println(line);   // Print planner output
+
                 targetString = "Plan cost :";        // Sequence to search for
                 index = line.indexOf("Plan cost: "); // Find target in line (if it exists)
 
@@ -119,25 +121,24 @@ public class GoalRecognizer {
      * Creates a probability distribution (before normalization) of goals
      *
      * @param domain path to domain file
-     * @param currentPosProblem path to problem file, where the current agent position is the goal
+     * @param currentPosProblems array of problem file paths, where current position is the start
      * @param goalProblems array of problem file paths, for each of the goals
      * @return array of relative probabilities for corresponding goals, before normalization
      */
-    private static double[] initialProbDist(String domain, String currentPosProblem, String[] goalProblems)
+    private static double[] initialProbDist(String domain, String[] currentPosProblems, String[] goalProblems)
     {
-        int currentPosCost;
         double[] relativeProbs;
-
-        currentPosCost = findCost(domain, currentPosProblem);   // Find cost of reaching current position (to be stored)
         relativeProbs = new double[goalProblems.length];
 
         // Populate relativeProbs with correct probabilities
-        int costToGoal;
+        int startToGoal;
+        int currentPosToGoal;
         double relativeProb;
         for (int i = 0; i < goalProblems.length; ++i)
         {
-            costToGoal = findCost(domain, goalProblems[i]);
-            relativeProb = initialProb(currentPosCost, costToGoal);
+            startToGoal = findCost(domain, goalProblems[i]);
+            currentPosToGoal = findCost(domain, currentPosProblems[i]);
+            relativeProb = initialProb(currentPosToGoal, startToGoal);
             relativeProbs[i] = relativeProb;
         }
 
@@ -148,18 +149,21 @@ public class GoalRecognizer {
      * Prints the relative probability distribution for an array of potential goals
      *
      * @param domain path to domain file
-     * @param currentPosProblem path to problem file, where the current agent position is the goal
+     * @param currentPosProblems array of problem file paths, where current position is the start
      * @param goalProblems array of problem file paths, for each of the goals
      */
-    public static void goalProbabilites(String domain, String currentPosProblem, String[] goalProblems)
+    public static void goalProbabilites(String domain, String[] currentPosProblems, String[] goalProblems)
     {
         double[] probs;
 
-        probs = initialProbDist(domain, currentPosProblem, goalProblems);
+        // Calculate probabilities
+        probs = initialProbDist(domain, currentPosProblems, goalProblems);
         probs = normalizeDist(probs);
 
-        for (double probability : probs)
-        {
+        System.out.println("\nPrinting probabilities...");
+
+        // Print probabilities
+        for (double probability : probs) {
             System.out.println(probability);
         }
     }
@@ -167,11 +171,21 @@ public class GoalRecognizer {
     public static void main(String[] args)
     {
         String domainFile;
-        String problemFile;
+        String[] currPosFiles;
+        String[] goalFiles;
 
-        domainFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/domain.pddl";
-        problemFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/prob1.pddl";
+        domainFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/domain.pddl";
 
-        System.out.println(GoalRecognizer.findCost(domainFile, problemFile));
+        currPosFiles = new String[3];
+        currPosFiles[0] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos1.pddl";
+        currPosFiles[1] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos2.pddl";
+        currPosFiles[2] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos3.pddl";
+
+        goalFiles = new String[3];
+        goalFiles[0] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal1.pddl";
+        goalFiles[1] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal2.pddl";
+        goalFiles[2] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal3.pddl";
+
+        goalProbabilites(domainFile, currPosFiles, goalFiles);
     }
 }
