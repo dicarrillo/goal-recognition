@@ -5,7 +5,7 @@
 	(:predicates
 		(at ?p - place)
 		(connected ?p1 ?p2 - place)
-		(illegal-move ?src ?dst - place)
+		(illegal-action ?src ?dst - place)
 	)
 	(:action MOVE
 		:parameters (?src - place ?dst - place)
