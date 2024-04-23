@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-
 public class GoalRecognizer {
     /**
      * Calculates the probability value for a specific goal before the normalizing constant is applied
