@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 
 public class GoalRecognizer {
@@ -92,7 +89,7 @@ public class GoalRecognizer {
                 int index;
                 char charCost;
 
-                System.out.println(line);   // Print planner output
+//                System.out.println(line);   // Print planner output
 
                 targetString = "Plan cost :";        // Sequence to search for
                 index = line.indexOf("Plan cost: "); // Find target in line (if it exists)
@@ -101,16 +98,12 @@ public class GoalRecognizer {
                 {   // Target string found, get value of next character (which is the cost)
                     charCost = line.charAt(index + targetString.length());
                     cost = charCost - '0';
+                    break;
                 }
-
             }
 
-            // Wait for the process to finish
-            int exitCode = process.waitFor();
-            System.out.println("Command executed with exit code: " + exitCode);
-        }
-        catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
 
         return cost;
@@ -159,7 +152,7 @@ public class GoalRecognizer {
         probs = initialProbDist(domain, currentPosProblems, goalProblems);
         probs = normalizeDist(probs);
 
-        System.out.println("\nPrinting probabilities...");
+        System.out.println();
 
         // Print probabilities
         for (double probability : probs) {
@@ -167,24 +160,231 @@ public class GoalRecognizer {
         }
     }
 
+    public static void performTest(String domainPath, String testPath, int testNum)
+    {
+        String goal1Path;
+        String goal2Path;
+        String[]goalFiles;
+        String[] currPosFiles;
+        String[] g1Files;
+        String[] g2Files;
+        int planCost;
+        int maxCost;
+
+        System.out.println("\nSTARTING TEST " + testNum);
+        System.out.println("\nProbabilities for each step in goal 1 path with no reduction...");
+
+        // Set goal paths
+        goal1Path = testPath + "/No-Reduction/goal1.pddl";
+        goal2Path = testPath + "/No-Reduction/goal2.pddl";
+
+        // Populate goalFiles array
+        goalFiles = new String[2];
+        goalFiles[0] = goal1Path;
+        goalFiles[1] = goal2Path;
+
+        // Create currPosFiles array
+        currPosFiles = new String[2];
+
+        // Print goal probabilities with goal 1 path and no reduction
+        planCost = findCost(domainPath, goal1Path);
+
+        // Create arrays of goal 1 path files
+        g1Files = new String[planCost + 1];
+        g2Files = new String[planCost + 1];
+
+        // Populate arrays
+        for (int i = 0; i < g1Files.length; ++i)
+        {
+            String startingString = testPath + "/No-Reduction/g1Path/1-";
+            g1Files[i] = startingString + i + ".pddl";
+        }
+
+        for (int i = 0; i < g2Files.length; ++i)
+        {
+            String startingString = testPath + "/No-Reduction/g1Path/2-";
+            g2Files[i] = startingString + i + ".pddl";
+        }
+
+        for (int i = 0; i < g1Files.length; ++i)
+        {
+            // Set current position files
+            currPosFiles[0] = g1Files[i];
+            currPosFiles[1] = g2Files[i];
+
+            goalProbabilites(domainPath, currPosFiles, goalFiles);
+        }
+
+        System.out.println("\nProbabilities for each step in goal 1 path with reduction...");
+
+        // Set goal paths
+        goal1Path = testPath + "/With-Reduction/goal1.pddl";
+        goal2Path = testPath + "/With-Reduction/goal2.pddl";
+
+        // Populate goalFiles array
+        goalFiles = new String[2];
+        goalFiles[0] = goal1Path;
+        goalFiles[1] = goal2Path;
+
+        // Create currPosFiles array
+        currPosFiles = new String[2];
+
+        // Print goal probabilities with goal 1 path and reduction
+        planCost = findCost(domainPath, goal1Path);
+
+        // Create arrays of goal 1 path files
+        g1Files = new String[planCost + 1];
+        g2Files = new String[planCost + 1];
+
+        // Populate arrays
+        for (int i = 0; i < g1Files.length; ++i)
+        {
+            String startingString = testPath + "/With-Reduction/g1Path/1-";
+            g1Files[i] = startingString + i + ".pddl";
+        }
+
+        for (int i = 0; i < g2Files.length; ++i)
+        {
+            String startingString = testPath + "/With-Reduction/g1Path/2-";
+            g2Files[i] = startingString + i + ".pddl";
+        }
+
+        for (int i = 0; i < g1Files.length; ++i)
+        {
+            // Set current position files
+            currPosFiles[0] = g1Files[i];
+            currPosFiles[1] = g2Files[i];
+
+            goalProbabilites(domainPath, currPosFiles, goalFiles);
+        }
+
+        System.out.println("\nProbabilities for each step in goal 2 path with no reduction...");
+
+        // Set goal paths
+        goal1Path = testPath + "/No-Reduction/goal1.pddl";
+        goal2Path = testPath + "/No-Reduction/goal2.pddl";
+
+        // Populate goalFiles array
+        goalFiles = new String[2];
+        goalFiles[0] = goal1Path;
+        goalFiles[1] = goal2Path;
+
+        // Create currPosFiles array
+        currPosFiles = new String[2];
+
+        // Print goal probabilities with goal 2 path and no reduction
+        planCost = findCost(domainPath, goal2Path);
+
+        // Create arrays of goal 1 path files
+        g1Files = new String[planCost + 1];
+        g2Files = new String[planCost + 1];
+
+        // Populate arrays
+        for (int i = 0; i < g1Files.length; ++i)
+        {
+            String startingString = testPath + "/No-Reduction/g2Path/1-";
+            g1Files[i] = startingString + i + ".pddl";
+        }
+
+        for (int i = 0; i < g2Files.length; ++i)
+        {
+            String startingString = testPath + "/No-Reduction/g2Path/2-";
+            g2Files[i] = startingString + i + ".pddl";
+        }
+
+        for (int i = 0; i < g1Files.length; ++i)
+        {
+            // Set current position files
+            currPosFiles[0] = g1Files[i];
+            currPosFiles[1] = g2Files[i];
+
+            goalProbabilites(domainPath, currPosFiles, goalFiles);
+        }
+
+        System.out.println("\nProbabilities for each step in goal 2 path with reduction...");
+
+        // Set goal paths
+        goal1Path = testPath + "/With-Reduction/goal1.pddl";
+        goal2Path = testPath + "/With-Reduction/goal2.pddl";
+
+        // Populate goalFiles array
+        goalFiles = new String[2];
+        goalFiles[0] = goal1Path;
+        goalFiles[1] = goal2Path;
+
+        // Create currPosFiles array
+        currPosFiles = new String[2];
+
+        // Print goal probabilities with goal 2 path and reduction
+        planCost = findCost(domainPath, goal2Path);
+
+        // Create arrays of goal 1 path files
+        g1Files = new String[planCost + 1];
+        g2Files = new String[planCost + 1];
+
+        // Populate arrays
+        for (int i = 0; i < g1Files.length; ++i)
+        {
+            String startingString = testPath + "/With-Reduction/g2Path/1-";
+            g1Files[i] = startingString + i + ".pddl";
+        }
+
+        for (int i = 0; i < g2Files.length; ++i)
+        {
+            String startingString = testPath + "/With-Reduction/g2Path/2-";
+            g2Files[i] = startingString + i + ".pddl";
+        }
+
+        for (int i = 0; i < g1Files.length; ++i)
+        {
+            // Set current position files
+            currPosFiles[0] = g1Files[i];
+            currPosFiles[1] = g2Files[i];
+
+            goalProbabilites(domainPath, currPosFiles, goalFiles);
+        }
+
+    }
+
     public static void main(String[] args)
     {
         String domainFile;
-        String[] currPosFiles;
-        String[] goalFiles;
+        String testFile;
+//        String[] currPosFiles;
+//        String[] goalFiles;
+//
+//        domainFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/domain.pddl";
+//
+//        currPosFiles = new String[3];
+//        currPosFiles[0] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos1.pddl";
+//        currPosFiles[1] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos2.pddl";
+//        currPosFiles[2] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos3.pddl";
+//
+//        goalFiles = new String[3];
+//        goalFiles[0] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal1.pddl";
+//        goalFiles[1] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal2.pddl";
+//        goalFiles[2] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal3.pddl";
+//
+//        goalProbabilites(domainFile, currPosFiles, goalFiles);
 
-        domainFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/domain.pddl";
+        domainFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/WCD-Tests/domain.pddl";
 
-        currPosFiles = new String[3];
-        currPosFiles[0] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos1.pddl";
-        currPosFiles[1] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos2.pddl";
-        currPosFiles[2] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/currPos3.pddl";
+        testFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/WCD-Tests/Test1";
+        performTest(domainFile, testFile, 1);
 
-        goalFiles = new String[3];
-        goalFiles[0] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal1.pddl";
-        goalFiles[1] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal2.pddl";
-        goalFiles[2] = "/Users/dynomite/Desktop/REU/Goal-Recognition/Test-Files/Test2/goal3.pddl";
+        testFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/WCD-Tests/Test2";
+        performTest(domainFile, testFile, 2);
 
-        goalProbabilites(domainFile, currPosFiles, goalFiles);
+        testFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/WCD-Tests/Test3";
+        performTest(domainFile, testFile, 3);
+
+        testFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/WCD-Tests/Test4";
+        performTest(domainFile, testFile, 4);
+
+        testFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/WCD-Tests/Test5";
+        performTest(domainFile, testFile, 5);
+
+        testFile = "/Users/dynomite/Desktop/REU/Goal-Recognition/WCD-Tests/Test6";
+        performTest(domainFile, testFile, 6);
     }
 }

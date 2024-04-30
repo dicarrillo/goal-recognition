@@ -90,7 +90,7 @@ place_4_0 place_4_1 place_4_2 place_4_3 place_4_4
 (connected place_4_4 place_3_4)
 (connected place_4_4 place_4_3)
 (connected place_2_0 place_2_1)
-(at place_1_0)
+(at place_0_2)
 )
 (:goal
 (and
